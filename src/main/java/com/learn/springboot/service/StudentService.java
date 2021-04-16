@@ -6,9 +6,13 @@ import com.learn.springboot.requests.CreateStudentRequest;
 import com.learn.springboot.requests.DeleteStudentRequest;
 import com.learn.springboot.requests.UpdateStudentRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class StudentService {
@@ -16,16 +20,23 @@ public class StudentService {
     @Autowired
     StudentRepository studentRepository;
 
-    public List<Student> getAllStudents() {
+    public List<Student> getStudents(String firstName, String lastName) {
+        if (firstName != null && lastName != null) {
+            return studentRepository.findAllByLastName(lastName).stream().filter(a -> a.getFirstName().equals(firstName)).collect(Collectors.toList());
+        }
+        if (firstName != null) {
+            return studentRepository.findAllByFirstName(firstName);
+        }
+        if (lastName != null) {
+            return studentRepository.findAllByLastName(lastName);
+        }
         return studentRepository.findAll();
     }
 
     public List<Student> getStudentsByFirstName(String firstName) {
         return studentRepository.findAllByFirstName(firstName);
     }
-    public List<Student> getStudentsByLastName(String lastName) {
-        return studentRepository.findAllByLastName(lastName);
-    }
+
 
     public Student getStudents(long id) {
         return studentRepository.findById(id).get();
@@ -39,10 +50,10 @@ public class StudentService {
 
     public Student updateStudent(UpdateStudentRequest request) {
         Student student = studentRepository.findById(request.getId()).get();
-        if(request.getFirstName() != null && !request.getFirstName().isEmpty()){
+        if (request.getFirstName() != null && !request.getFirstName().isEmpty()) {
             student.setFirstName(request.getFirstName());
         }
-        if(request.getLastName() != null && !request.getLastName().isEmpty()){
+        if (request.getLastName() != null && !request.getLastName().isEmpty()) {
             student.setLastName(request.getLastName());
         }
         return studentRepository.save(student);
@@ -57,4 +68,28 @@ public class StudentService {
         studentRepository.deleteById(request.getId());
         return "Student has been deleted successfully";
     }
+
+    // Start from 0
+    public List<Student> getStudentsByPage(int number) {
+        Pageable pageable = PageRequest.of(number, 5);
+        return studentRepository.findAll(pageable).getContent();
+    }
+
+    public List<Student> getSortedList() {
+        Sort sort = Sort.by(Sort.Direction.ASC, "firstName");
+        return studentRepository.findAll(sort);
+    }
+
+    public List<Student> getStudentsContainingFirstName(String firstName) {
+        return studentRepository.findAllByFirstNameContaining(firstName);
+    }
+
+    public List<Student> getStudentsWithFirstNameStartingWith(String firstName) {
+        return studentRepository.findAllByFirstNameStartingWith(firstName);
+    }
+
+    public List<Student> getStudentsWithFirstNameStartsWith(String firstName) {
+        return studentRepository.findAllByFirstNameStartsWith(firstName);
+    }
+
 }

@@ -14,9 +14,12 @@ public class StudentResponse {
     @JsonProperty("last_name")
     private String lastName;
 
+    private String fullName;
+
     public StudentResponse(Student student) {
         this.id = student.getId();
         this.firstName = student.getFirstName();
         this.lastName = student.getLastName();
+        this.fullName = firstName + lastName;
     }
 }

@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,29 +25,9 @@ public class StudentController {
     @GetMapping("")
     public List<StudentResponse> getAllStudents(
             @RequestParam(value = "lastName", required = false) String lastName,
-            @RequestParam(value = "firstName", required = false) String firstName,
-            @RequestParam(value = "id", required = false) Long id) {
-        if(id != null) {
-            List<Student> responses = new ArrayList<>();
-            responses.add(studentService.getStudents(id));
-            return responses.stream().map(StudentResponse::new).collect(Collectors.toList());
-        }
-        if(firstName != null && lastName != null) {
-            List<Student> studentList = studentService.getStudentsByFirstName(firstName);
-            return studentList.stream().map(StudentResponse::new).collect(Collectors.toList());
-        }
-        if(lastName != null) {
-            List<Student> studentList = studentService.getStudentsByLastName(lastName);
-            return studentList.stream().map(StudentResponse::new).collect(Collectors.toList());
-        }
-        if(firstName != null) {
-            List<Student> studentList = studentService.getStudentsByLastName(lastName);
-            return studentList.stream().map(StudentResponse::new).collect(Collectors.toList());
-        }
-        else {
-            List<Student> studentList = studentService.getAllStudents();
-            return studentList.stream().map(StudentResponse::new).collect(Collectors.toList());
-        }
+            @RequestParam(value = "firstName", required = false) String firstName) {
+        List<Student> studentList = studentService.getStudents(firstName, lastName);
+        return studentList.stream().map(StudentResponse::new).collect(Collectors.toList());
     }
 
     @PostMapping("/create")
@@ -62,6 +41,7 @@ public class StudentController {
     }
 
     @DeleteMapping("/delete")
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Some parameters are invalid")
     public String deleteStudent(@RequestParam("id") Long id) {
         return studentService.deleteStudent(id);
     }
@@ -74,5 +54,35 @@ public class StudentController {
     @DeleteMapping("/delete/{id}")
     public String deleteStudent(@PathVariable long id) {
         return studentService.deleteStudent(id);
+    }
+
+    @GetMapping("/page/{number}")
+    public List<StudentResponse> getStudentsByPage(@PathVariable int number) {
+        List<Student> studentsList = studentService.getStudentsByPage(number);
+        return studentsList.stream().map(StudentResponse::new).collect(Collectors.toList());
+    }
+
+    @GetMapping("/sorted")
+    public List<StudentResponse> getStudentInAscendingOrder() {
+        List<Student> studentList = studentService.getSortedList();
+        return studentList.stream().map(StudentResponse::new).collect(Collectors.toList());
+    }
+
+    @GetMapping("/sorted/contains/{contains}")
+    public List<StudentResponse> getStudentsContainingFirstName(@PathVariable String contains) {
+        List<Student> studentList = studentService.getStudentsContainingFirstName(contains);
+        return studentList.stream().map(StudentResponse::new).collect(Collectors.toList());
+    }
+
+    @GetMapping("/sorted/starts/{starts}")
+    public List<StudentResponse> getStudentsWithFirstNameStartsWith(@PathVariable String starts) {
+        List<Student> studentList = studentService.getStudentsWithFirstNameStartsWith(starts);
+        return studentList.stream().map(StudentResponse::new).collect(Collectors.toList());
+    }
+
+    @GetMapping("/sorted/starting/{starting}")
+    public List<StudentResponse> getStudentsWithFirstNameStartingWith(@PathVariable String starting) {
+        List<Student> studentList = studentService.getStudentsWithFirstNameStartingWith(starting);
+        return studentList.stream().map(StudentResponse::new).collect(Collectors.toList());
     }
 }

@@ -12,4 +12,10 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     List<Student> findAllByFirstName(String firstName);
 
     List<Student> findAllByLastName(String lastName);
+
+    List<Student> findAllByFirstNameContaining(String firstName);
+
+    List<Student> findAllByFirstNameStartingWith(String firstName);
+
+    List<Student> findAllByFirstNameStartsWith(String firstName);
 }

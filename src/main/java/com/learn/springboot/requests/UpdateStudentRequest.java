@@ -14,9 +14,7 @@ public class UpdateStudentRequest {
     @NotNull(message = "id is missing")
     private Long id;
 
-    @JsonProperty("first_name")
     private String firstName;
 
-    @JsonProperty("first_name")
     private String lastName;
 }

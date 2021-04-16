@@ -26,8 +26,12 @@ public class Student {
     @Column(name = "last_name")
     private String lastName;
 
+    @Transient
+    private String fullName;
+
     public Student(CreateStudentRequest request) {
         this.firstName = request.getFirstName();
         this.lastName = request.getLastName();
+        this.fullName = firstName + lastName;
     }
 }

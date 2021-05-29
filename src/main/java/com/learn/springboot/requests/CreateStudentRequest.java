@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,4 +18,10 @@ public class CreateStudentRequest {
 
     @JsonProperty("last_name")
     private String lastName;
+
+    private String street;
+
+    private String city;
+
+    private List<CreateSubjectRequest> subjectsLearning;
 }

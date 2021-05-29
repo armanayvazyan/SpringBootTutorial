@@ -30,6 +30,18 @@ public class StudentController {
         return studentList.stream().map(StudentResponse::new).collect(Collectors.toList());
     }
 
+    @GetMapping("/getByCity/{cityName}")
+    public List<StudentResponse> getAllStudentsByCity(@PathVariable String cityName) {
+        List<Student> studentList = studentService.getStudentsByCity(cityName);
+        return studentList.stream().map(StudentResponse::new).collect(Collectors.toList());
+    }
+
+    @GetMapping("/getByCityQuery/{cityName}")
+    public List<StudentResponse> getAllStudentsByCityQuery(@PathVariable String cityName) {
+        List<Student> studentList = studentService.getStudentsByCity(cityName, true);
+        return studentList.stream().map(StudentResponse::new).collect(Collectors.toList());
+    }
+
     @PostMapping("/create")
     public ResponseEntity<StudentResponse> createStudent(@Valid @RequestBody CreateStudentRequest request) {
         return new ResponseEntity<>(new StudentResponse(studentService.createStudent(request)), HttpStatus.CREATED);

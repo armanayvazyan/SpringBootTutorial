@@ -1,8 +1,13 @@
 package com.learn.springboot.service;
 
+import com.learn.springboot.entity.Address;
 import com.learn.springboot.entity.Student;
+import com.learn.springboot.entity.Subject;
+import com.learn.springboot.repository.AddressRepository;
 import com.learn.springboot.repository.StudentRepository;
+import com.learn.springboot.repository.SubjectRepository;
 import com.learn.springboot.requests.CreateStudentRequest;
+import com.learn.springboot.requests.CreateSubjectRequest;
 import com.learn.springboot.requests.DeleteStudentRequest;
 import com.learn.springboot.requests.UpdateStudentRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,6 +25,12 @@ public class StudentService {
 
     @Autowired
     StudentRepository studentRepository;
+
+    @Autowired
+    AddressRepository addressRepository;
+
+    @Autowired
+    SubjectRepository subjectRepository;
 
     public List<Student> getStudents(String firstName, String lastName) {
         if (firstName != null && lastName != null) {
@@ -44,7 +56,30 @@ public class StudentService {
 
     public Student createStudent(CreateStudentRequest request) {
         Student student = new Student(request);
+
+        Address address = new Address();
+        address.setCity(request.getCity());
+        address.setStreet(request.getStreet());
+        addressRepository.save(address);
+
+        student.setAddress(address);
         student = studentRepository.save(student);
+
+        List<Subject> subjectList = new ArrayList<>();
+        if(request.getSubjectsLearning() != null) {
+            for (CreateSubjectRequest subjectRequest : request.getSubjectsLearning()) {
+                Subject subject = new Subject();
+                subject.setSubjectName(subjectRequest.getSubjectName());
+                subject.setObtainedMarks(subjectRequest.getMarksObtained());
+                subject.setStudent(student);
+
+                subjectList.add(subject);
+            }
+
+            subjectRepository.saveAll(subjectList);
+        }
+
+        student.setLearningSubjects(subjectList);
         return student;
     }
 
@@ -92,4 +127,13 @@ public class StudentService {
         return studentRepository.findAllByFirstNameStartsWith(firstName);
     }
 
+    public List<Student> getStudentsByCity(String cityName, boolean withJPQL) {
+        if(withJPQL)
+            return studentRepository.findAllByAddressCityQuery(cityName);
+        return studentRepository.findAllByAddressCity(cityName);
+    }
+
+    public List<Student> getStudentsByCity(String cityName) {
+        return getStudentsByCity(cityName, false);
+    }
 }
